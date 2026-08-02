@@ -14,3 +14,5 @@ class Userfavorite(models.Model):
 
     def __str__(self):
         return f'{self.user}{self.content_type}{self.object_id}'
+    
+

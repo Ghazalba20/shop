@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
+    'drf_yasg',
     'app_account',
     'app_shop'
 ]
@@ -128,3 +129,9 @@ else:
   CORS_ALLOWED_ORIGINS = [
     'https:\\didkala-shop.com'
    ]
+  
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}

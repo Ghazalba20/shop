@@ -30,3 +30,8 @@ class productSerializer(serializers.ModelSerializer):
     class Meta:
         model = product
         fields='__all__'
+
+
+class ProductRequestBodySerializer(serializers.Serializer):
+    title=serializers.CharField()
+    sub_title=serializers.CharField()

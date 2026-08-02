@@ -19,6 +19,7 @@ from app_shop.api import views
 urlpatterns = [
     path('special_offer_list', views.special_offer_list),
     path('product/,<int:id>', views.product_detail),
+    path('product create/', views.product_create ),
 
   
 ]  

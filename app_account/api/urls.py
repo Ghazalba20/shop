@@ -19,6 +19,8 @@ from app_account.api import views
 
 urlpatterns = [
     path('favorite-list', views.favorite_list),
+    path('favorite', views.favorite),
+
 
   
 ]  
