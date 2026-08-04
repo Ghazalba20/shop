@@ -20,12 +20,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-n_lq@rsd=(*i8ft(&hl8g-g%1fe5-%+vnx9m!&3)ee8869q7cq'
+SECRET_KEY = 'django-insecure-z$_3i7y46f_pgld7+_&kpwpd03y67_xxd(j7&l*pt*x4vf*91g'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+if DEBUG:
+    ALLOWED_HOSTS = ['127.0.0.1']
+else:
+    ALLOWED_HOSTS = ['api.behbamco.ir']
+
 
 
 # Application definition
@@ -38,17 +42,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
-    'rest_framework',
     'drf_yasg',
+    'django_filters',
+    'rest_framework',
     'app_account',
-    'app_shop'
+    'app_shop',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware', 
+    'django.contrib.sessions.middleware.SessionMiddleware',
     "corsheaders.middleware.CorsMiddleware",
-    "django.middleware.common.CommonMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -122,16 +126,19 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
-if DEBUG:
-  CORS_ALLOW_ALL_ORIGINS=True
 
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
 else:
-  CORS_ALLOWED_ORIGINS = [
-    'https:\\didkala-shop.com'
-   ]
-  
+    CORS_ALLOWED_ORIGINS = [
+        'http://behbamco.ir'
+    ]
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }

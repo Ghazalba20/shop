@@ -1,54 +1,48 @@
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.http import JsonResponse
-from app_shop.models import specialoffer,product
-from app_shop.api.serializers import specialofferSerializer , productSerializer,ProductRequestBodySerializer
-from rest_framework.response import Response
+from app_shop.models import SpecialOffer, Product
 from rest_framework.decorators import api_view
-from django.contrib.contenttypes.models import ContentType
+from app_shop.api.serializers import SpecialOfferSerializer, ProductSerializer, ProductRequestBodySerializer
 from rest_framework.response import Response
 from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from rest_framework.generics import ListAPIView
+from rest_framework.pagination import PageNumberPagination
+from django.db.models import Q
+from django_filters.rest_framework import DjangoFilterBackend
 
 
-@api_view()
-
-
-# def specialoffer(request):
-#     return JsonResponse({
-     #     'result':specialoffer.object.all()
-#     })
+# def serializer(qs):
+#     res = []
+#     for i in qs:
+#         res.append({
+#             'image': i.image.url,
+#             'link': i.link,
+#             'location': i.location,
+#             'datetime': i.datetime
+#         })
+#     return res
+    
 
 @api_view()
 def special_offer_list(request):
-    qs=specialoffer.objects.all()
-    serializer=specialofferSerializer(qs, many=True)
-    return Response({
-        'result': serializer.data
-    })
-
-@api_view()
-def product_detail(request,id):
-    '''
-    product details view
-    '''
-    qs=specialoffer.objects.get(id=id)
-    serializer=productSerializer(qs, many=True)
+    """
+    this is a test
+    """
+    qs = SpecialOffer.objects.last()
+    serializer = SpecialOfferSerializer(qs)
     return Response({
         'result': serializer.data
     })
 
 
-
-
 @api_view()
-def favorite_list(request):
+def product_detail(request, id):
     """
-    Favorite list View
+    Prodct Detail View
     """
-    qs = UserFavorite.objects.all()
-    serializer = UserFavoriteSerializer(qs, many=True)
+    qs = Product.objects.get(id=id)
+    serializer = ProductSerializer(qs)
     return Response({
         'result': serializer.data
     })
@@ -57,7 +51,7 @@ def favorite_list(request):
 @swagger_auto_schema(
     method='post',
     responses={
-        201: 'create favorite', 
+        201: 'create favorite',
         204: 'delete favorite',
         400: 'invalid number',
         404: 'content type not found',
@@ -68,11 +62,28 @@ def favorite_list(request):
 def product_create(request):
     """
     product create
-
     """
-  
-    product = product.objects.create(
-       title='',
-       sub_title='asd' 
+    product = Product.objects.create(
+        title='',
+        sub_title='asd'
     )
-    return Response(data={},status=status.HTTP_201_CREATED)
+    return Response(data={}, status=status.HTTP_201_CREATED)
+
+
+class ProductListView(ListAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    pagination_class = PageNumberPagination
+    filter_backends = [DjangoFilterBackend]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        title = self.request.GET.get('title')
+        max_price = self.request.GET.get('max_price')
+        min_price = self.request.GET.get('min_price')
+        if max_price and min_price:
+            qs = qs.filter(productcolor__price__gte=min_price, productcolor__price__lte=max_price)
+        return qs.filter(
+            Q(title__contains=title) | Q(sub_title__icontains=title)
+        ) if title else qs
+
