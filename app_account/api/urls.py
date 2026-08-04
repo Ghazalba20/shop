@@ -33,4 +33,7 @@ urlpatterns = [
     path('basket/add', views.add_to_basket),
     path('basket/remove', views.remove_from_basket),
    
+    path('purchase', views.purchase),
+    path('order/list', views.order_list),
+    path('order/<int:id>', views.order_detail),
 ]  

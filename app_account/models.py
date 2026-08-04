@@ -63,4 +63,33 @@ class BasketItem(models.Model):
 
     def __str__(self):
         return f'{self.basket.user} - {self.product_color} x {self.quantity}'
-      
+    
+
+
+ 
+class Order(models.Model):
+    STATUS_CHOICES=(
+        ('pending','pending'),
+        ('paid','paid'),
+        ('canceled','canceled'),
+    )
+    user=models.ForeignKey(User,on_delete=models.SET_NULL,null=True,related_name='orders')
+    status=models.CharField(max_length=20,choices=STATUS_CHOICES,default='pending')
+    address=models.ForeignKey(Address,on_delete=models.SET_NULL,null=True)
+    total_price=models.IntegerField(default=0)
+    created_at=models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'order-{self.id}-{self.user}'
+
+
+class OrderItem(models.Model):
+    order=models.ForeignKey(Order,on_delete=models.CASCADE,related_name='items')
+    product_color=models.ForeignKey('app_shop.product_color',on_delete=models.SET_NULL,null=True)
+    quantity=models.PositiveIntegerField(default=1)
+    price=models.IntegerField(default=0)
+
+    def __str__(self):
+        return f'{self.order} - {self.product_color} x {self.quantity}'
+
+  

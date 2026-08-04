@@ -1,10 +1,11 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view,authentication_classes,permission_classes
 from rest_framework.permissions import IsAuthenticated
-from app_account.models import Userfavorite,Profile,PhoneVerificationCode,Address,Basket,BasketItem
+from app_account.models import Userfavorite,Profile,PhoneVerificationCode,Address,Basket,BasketItem,Order,OrderItem
 from app_account.api.serializers import userfavoriteSerializer, UserFavoriteRequestBodySerializer,ProfileSerializer,ProfileUpdateRequestBodySerializer,RegisterRequestBodySerializer,ResendCodeRequestBodySerializer,VerifyRequestBodySerializer
 from app_account.api.serializers import AddressSerializer ,BasketItemSerializer,AddToBasketRequestBodySerializer,RemoveFromBasketRequestBodySerializer
 from django.contrib.contenttypes.models import ContentType
+from app_account.api.serializers import OrderItemSerializer,OrderSerializer,PurchaseRequestBodySerializer
 from rest_framework.response import Response
 from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
@@ -399,3 +400,74 @@ def basket_detail(request):
     basket, _ = Basket.objects.get_or_create(user=request.user)
     serializer = BasketItemSerializer(basket.items.all(), many=True)
     return Response({'result': serializer.data})
+
+
+#purchase 
+@swagger_auto_schema(
+    method='post',
+    responses={201: 'order created', 400: 'basket is empty'},
+    request_body=PurchaseRequestBodySerializer,
+)
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def purchase(request):
+    """
+    checkout the basket and create an order
+    """
+    serializer = PurchaseRequestBodySerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        basket = Basket.objects.get(user=request.user)
+    except Basket.DoesNotExist:
+        return Response(data={'message': 'basket is empty'}, status=status.HTTP_400_BAD_REQUEST)
+
+    items = basket.items.all()
+    if not items:
+        return Response(data={'message': 'basket is empty'}, status=status.HTTP_400_BAD_REQUEST)
+
+    total_price = 0
+    order = Order.objects.create(user=request.user, address_id=serializer.data['address'])
+    for item in items:
+        price = item.product_color.price or 0
+        OrderItem.objects.create(
+            order=order, product_color=item.product_color,
+            quantity=item.quantity, price=price,
+        )
+        total_price += price * item.quantity
+
+    order.total_price = total_price
+    order.status = 'paid'
+    order.save()
+
+    items.delete()
+
+    return Response(data=OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def order_list(request):
+    """
+    list current user's orders
+    """
+    qs = Order.objects.filter(user=request.user).order_by('-created_at')
+    serializer = OrderSerializer(qs, many=True)
+    return Response({'result': serializer.data})
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def order_detail(request, id):
+    """
+    current user's order detail
+    """
+    try:
+        order = Order.objects.get(id=id, user=request.user)
+    except Order.DoesNotExist:
+        return Response(data={'message': 'not found'}, status=status.HTTP_404_NOT_FOUND)
+    return Response({'result': OrderSerializer(order).data})

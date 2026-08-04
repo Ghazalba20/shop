@@ -1,4 +1,4 @@
-from app_shop.models import specialoffer,product,product_color
+from app_shop.models import specialoffer,product,product_color,comment
 from rest_framework import serializers
 
 class specialofferSerializer(serializers.ModelSerializer):
@@ -35,3 +35,22 @@ class productSerializer(serializers.ModelSerializer):
 class ProductRequestBodySerializer(serializers.Serializer):
     title=serializers.CharField()
     sub_title=serializers.CharField()
+
+
+class ProductCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=product
+        fields=['title']
+
+
+class commentSerializer(serializers.ModelSerializer):
+    user=serializers.StringRelatedField(read_only=True)
+    class Meta:
+        model=comment
+        fields=['id','product','user','text','created_at','updated_at']
+        read_only_fields=['user','created_at','updated_at']
+
+
+class CommentRequestBodySerializer(serializers.Serializer):
+    product=serializers.IntegerField()
+    text=serializers.CharField()

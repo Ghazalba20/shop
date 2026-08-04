@@ -1,4 +1,4 @@
-from app_account.models import Userfavorite,Address,Profile
+from app_account.models import Userfavorite,Address,Profile,Basket,BasketItem,Order,OrderItem
 from rest_framework import serializers
 
 
@@ -60,3 +60,21 @@ class AddToBasketRequestBodySerializer(serializers.Serializer):
 
 class RemoveFromBasketRequestBodySerializer(serializers.Serializer):
     product_color=serializers.IntegerField()
+
+
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=OrderItem
+        fields=['id','product_color','quantity','price']
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    items=OrderItemSerializer(many=True,read_only=True)
+    class Meta:
+        model=Order
+        fields=['id','status','address','total_price','created_at','items']
+
+
+class PurchaseRequestBodySerializer(serializers.Serializer):
+    address=serializers.IntegerField()

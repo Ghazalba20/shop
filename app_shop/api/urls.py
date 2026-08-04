@@ -21,5 +21,9 @@ urlpatterns = [
     path('special-offer-list', views.special_offer_list),
     path('product/<int:id>', views.product_detail),
     path('product/', views.product_create),
-    path('products/', views.ProductListView.as_view())
+    path('products/', views.ProductListView.as_view()),
+    path('product/<int:product_id>/comment/list', views.comment_list),
+    path('comment/create', views.comment_create),
+    path('comment/<int:id>/update', views.comment_update),
+    path('comment/<int:id>/delete', views.comment_delete),
 ]
