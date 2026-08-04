@@ -1,8 +1,9 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view,authentication_classes,permission_classes
 from rest_framework.permissions import IsAuthenticated
-from app_account.models import Userfavorite,Profile,PhoneVerificationCode
+from app_account.models import Userfavorite,Profile,PhoneVerificationCode,Address
 from app_account.api.serializers import userfavoriteSerializer, UserFavoriteRequestBodySerializer,ProfileSerializer,ProfileUpdateRequestBodySerializer,RegisterRequestBodySerializer,ResendCodeRequestBodySerializer,VerifyRequestBodySerializer
+from app_account.api.serializers import AddressSerializer
 from django.contrib.contenttypes.models import ContentType
 from rest_framework.response import Response
 from rest_framework import status
@@ -75,6 +76,8 @@ def favorite(request):
     
 
     
+
+
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -222,7 +225,7 @@ def resend_code(request):
     return Response(data={'message': 'code resent'}, status=status.HTTP_200_OK)
 
 
-# ---------------- profile ----------------
+# profile
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
@@ -253,3 +256,75 @@ def profile_update(request):
     profile.last_name = request.data.get('last_name', profile.last_name)
     profile.save()
     return Response(data=ProfileSerializer(profile).data, status=status.HTTP_200_OK)
+
+
+
+# address
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def address_list(request):
+    """
+    list user addresses
+    """
+    qs = Address.objects.filter(user=request.user)
+    serializer = AddressSerializer(qs, many=True)
+    return Response({'result': serializer.data})
+
+
+@swagger_auto_schema(
+    method='post',
+    responses={201: 'created', 400: 'invalid data'},
+    request_body=AddressSerializer,
+)
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def address_add(request):
+    """
+    add a new address
+    """
+    serializer = AddressSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(user=request.user)
+        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+    return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@swagger_auto_schema(
+    method='put',
+    responses={200: 'updated', 404: 'not found'},
+    request_body=AddressSerializer,
+)
+@api_view(['PUT'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def address_update(request, id):
+    """
+    update an address
+    """
+    try:
+        address = Address.objects.get(id=id, user=request.user)
+    except Address.DoesNotExist:
+        return Response(data={'message': 'not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = AddressSerializer(address, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+    return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def address_remove(request, id):
+    """
+    remove an address
+    """
+    try:
+        address = Address.objects.get(id=id, user=request.user)
+    except Address.DoesNotExist:
+        return Response(data={'message': 'not found'}, status=status.HTTP_404_NOT_FOUND)
+    address.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)

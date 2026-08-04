@@ -1,4 +1,4 @@
-from app_account.models import Userfavorite
+from app_account.models import Userfavorite,Address,Profile
 from rest_framework import serializers
 
 
@@ -37,3 +37,11 @@ class VerifyRequestBodySerializer(serializers.Serializer):
 
 class ResendCodeRequestBodySerializer(serializers.Serializer):
     phone_number=serializers.CharField()
+
+
+
+
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Address
+        fields=['id','title','province','city','address','postal_code','receiver_name','receiver_phone']

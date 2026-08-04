@@ -36,3 +36,13 @@ class PhoneVerificationCode(models.Model):
     def __str__(self):
         return f'{self.phone_number} - {self.code}'
 
+
+class Address(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE,related_name='addresses')
+    title=models.CharField(max_length=120,null=True)
+    province=models.CharField(max_length=120,null=True)
+    city=models.CharField(max_length=120,null=True)
+    address=models.TextField(null=True)
+    postal_code=models.CharField(max_length=20,null=True)
+    receiver_name=models.CharField(max_length=120,null=True)
+    receiver_phone=models.CharField(max_length=15,null=True)
