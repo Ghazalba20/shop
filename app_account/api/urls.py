@@ -23,7 +23,11 @@ urlpatterns = [
     
     path('profile', views.profile_detail),
     path('profile/update', views.profile_update),
+
     
+    path('register', views.register),
+    path('verify', views.verify),
+    path('resend-code', views.resend_code),
 
 
    

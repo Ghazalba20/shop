@@ -25,3 +25,15 @@ class ProfileUpdateRequestBodySerializer(serializers.Serializer):
     first_name=serializers.CharField(required=False)
     last_name=serializers.CharField(required=False)
 
+
+class RegisterRequestBodySerializer(serializers.Serializer):
+    phone_number=serializers.CharField()
+
+
+class VerifyRequestBodySerializer(serializers.Serializer):
+    phone_number=serializers.CharField()
+    code=serializers.CharField()
+
+
+class ResendCodeRequestBodySerializer(serializers.Serializer):
+    phone_number=serializers.CharField()
