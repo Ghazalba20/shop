@@ -29,6 +29,8 @@ urlpatterns = [
     path('verify', views.verify),
     path('resend-code', views.resend_code),
 
-
+    path('basket', views.basket_detail),
+    path('basket/add', views.add_to_basket),
+    path('basket/remove', views.remove_from_basket),
    
 ]  

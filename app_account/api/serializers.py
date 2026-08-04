@@ -45,3 +45,18 @@ class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model=Address
         fields=['id','title','province','city','address','postal_code','receiver_name','receiver_phone']
+
+
+class BasketItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=BasketItem
+        fields=['id','product_color','quantity']
+
+
+class AddToBasketRequestBodySerializer(serializers.Serializer):
+    product_color=serializers.IntegerField()
+    quantity=serializers.IntegerField(default=1)
+
+
+class RemoveFromBasketRequestBodySerializer(serializers.Serializer):
+    product_color=serializers.IntegerField()

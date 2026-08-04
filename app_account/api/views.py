@@ -1,9 +1,9 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view,authentication_classes,permission_classes
 from rest_framework.permissions import IsAuthenticated
-from app_account.models import Userfavorite,Profile,PhoneVerificationCode,Address
+from app_account.models import Userfavorite,Profile,PhoneVerificationCode,Address,Basket,BasketItem
 from app_account.api.serializers import userfavoriteSerializer, UserFavoriteRequestBodySerializer,ProfileSerializer,ProfileUpdateRequestBodySerializer,RegisterRequestBodySerializer,ResendCodeRequestBodySerializer,VerifyRequestBodySerializer
-from app_account.api.serializers import AddressSerializer
+from app_account.api.serializers import AddressSerializer ,BasketItemSerializer,AddToBasketRequestBodySerializer,RemoveFromBasketRequestBodySerializer
 from django.contrib.contenttypes.models import ContentType
 from rest_framework.response import Response
 from rest_framework import status
@@ -328,3 +328,74 @@ def address_remove(request, id):
         return Response(data={'message': 'not found'}, status=status.HTTP_404_NOT_FOUND)
     address.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+#basket 
+@swagger_auto_schema(
+    method='post',
+    responses={201: 'added', 400: 'invalid data', 404: 'product color not found'},
+    request_body=AddToBasketRequestBodySerializer,
+)
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def add_to_basket(request):
+    """
+    add item to basket
+    """
+    serializer = AddToBasketRequestBodySerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        color = product_color.objects.get(id=serializer.data['product_color'])
+    except product_color.DoesNotExist:
+        return Response(data={'message': 'product color not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    basket, _ = Basket.objects.get_or_create(user=request.user)
+    item, created = BasketItem.objects.get_or_create(
+        basket=basket, product_color=color,
+        defaults={'quantity': serializer.data['quantity']},
+    )
+    if not created:
+        item.quantity += serializer.data['quantity']
+        item.save()
+
+    return Response(data=BasketItemSerializer(item).data, status=status.HTTP_201_CREATED)
+
+
+@swagger_auto_schema(
+    method='post',
+    responses={204: 'removed', 404: 'not found'},
+    request_body=RemoveFromBasketRequestBodySerializer,
+)
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def remove_from_basket(request):
+    """
+    remove item from basket
+    """
+    serializer = RemoveFromBasketRequestBodySerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        basket = Basket.objects.get(user=request.user)
+        item = BasketItem.objects.get(basket=basket, product_color_id=serializer.data['product_color'])
+    except (Basket.DoesNotExist, BasketItem.DoesNotExist):
+        return Response(data={'message': 'not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    item.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def basket_detail(request):
+    """
+    current user's basket
+    """
+    basket, _ = Basket.objects.get_or_create(user=request.user)
+    serializer = BasketItemSerializer(basket.items.all(), many=True)
+    return Response({'result': serializer.data})

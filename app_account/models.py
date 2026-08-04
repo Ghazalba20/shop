@@ -46,3 +46,21 @@ class Address(models.Model):
     postal_code=models.CharField(max_length=20,null=True)
     receiver_name=models.CharField(max_length=120,null=True)
     receiver_phone=models.CharField(max_length=15,null=True)
+
+
+ 
+class Basket(models.Model):
+    user=models.OneToOneField(User,on_delete=models.CASCADE,related_name='basket')
+
+    def __str__(self):
+        return f'basket-{self.user}'
+
+
+class BasketItem(models.Model):
+    basket=models.ForeignKey(Basket,on_delete=models.CASCADE,related_name='items')
+    product_color=models.ForeignKey('app_shop.product_color',on_delete=models.CASCADE)
+    quantity=models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f'{self.basket.user} - {self.product_color} x {self.quantity}'
+      
