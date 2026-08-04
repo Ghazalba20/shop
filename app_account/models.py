@@ -16,3 +16,13 @@ class Userfavorite(models.Model):
         return f'{self.user}{self.content_type}{self.object_id}'
     
 
+
+class Profile(models.Model):
+    user=models.OneToOneField(User,on_delete=models.CASCADE,related_name='profile')
+    phone_number=models.CharField(max_length=15,unique=True,null=True)
+    is_phone_verified=models.BooleanField(default=False)
+    first_name=models.CharField(max_length=120,null=True,blank=True)
+    last_name=models.CharField(max_length=120,null=True,blank=True)
+
+    def __str__(self):
+        return f'{self.phone_number}'

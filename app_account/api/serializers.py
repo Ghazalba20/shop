@@ -10,3 +10,18 @@ class userfavoriteSerializer(serializers.ModelSerializer):
 class UserFavoriteRequestBodySerializer(serializers.Serializer):
     object_id = serializers.IntegerField()
     object_type = serializers.CharField()
+
+
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+   class Meta:
+        model=Profile
+        fields=['id','phone_number','is_phone_verified','first_name','last_name']
+        read_only_fields=['phone_number','is_phone_verified']
+
+
+class ProfileUpdateRequestBodySerializer(serializers.Serializer):
+    first_name=serializers.CharField(required=False)
+    last_name=serializers.CharField(required=False)
+

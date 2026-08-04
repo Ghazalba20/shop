@@ -72,3 +72,35 @@ def favorite(request):
         # delete if exists
         user_favorite.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+    
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def profile_detail(request):
+    """
+    personal info detail
+    """
+    profile = request.user.profile
+    serializer = ProfileSerializer(profile)
+    return Response({'result': serializer.data})
+
+
+@swagger_auto_schema(
+    method='put',
+    responses={200: 'updated'},
+    request_body=ProfileUpdateRequestBodySerializer,
+)
+@api_view(['PUT'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def profile_update(request):
+    """
+    update personal info
+    """
+    profile = request.user.profile
+    profile.first_name = request.data.get('first_name', profile.first_name)
+    profile.last_name = request.data.get('last_name', profile.last_name)
+    profile.save()
+    return Response(data=ProfileSerializer(profile).data, status=status.HTTP_200_OK)
