@@ -27,7 +27,7 @@ class productSerializer(serializers.ModelSerializer):
     def get_colors(self, obj):
         qs = obj.productcolor_set.all()
         serializer = product_color_serializer(qs, many=True)
-        return serializer.dat
+        return serializer.data
 
     class Meta:
         model = product
@@ -36,7 +36,6 @@ class productSerializer(serializers.ModelSerializer):
 
 class ProductRequestBodySerializer(serializers.Serializer):
     title=serializers.CharField()
-    sub_title=serializers.CharField()
 
 
 class ProductCreateSerializer(serializers.ModelSerializer):

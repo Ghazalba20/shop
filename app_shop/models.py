@@ -9,7 +9,7 @@ class specialoffer(models.Model):
       link=models.URLField()
       datetime=models.DateTimeField((""), auto_now=False, auto_now_add=False)
       def __str__(self):
-            return str(self.title)
+            return str(self.datetime)
 
 
 class product(models.Model):
@@ -19,16 +19,16 @@ class product(models.Model):
             return self.title
       
       
-class product_color(models.Model):
-         product=models.ForeignKey(product,on_delete=models.CASCADE)
-         name=models.CharField(null=True ,max_length=120)
-         color_code=models.CharField(null=True ,max_length=20)
-         price=models.IntegerField(null=True)
-         price_with_discount=models.CharField(null=True ,max_length=120)
 
+class productColor(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    name = models.CharField(null=True, max_length=20)
+    color_code = models.CharField(null=True, max_length=7)
+    price = models.IntegerField(null=True)
+    price_with_discount = models.IntegerField(null=True)
 
-         def __str__(self):
-                return f'{self.product.title} + {self}'
+    def __str__(self):
+        return f'{self.product.title} {self.name}'
          
 
 
