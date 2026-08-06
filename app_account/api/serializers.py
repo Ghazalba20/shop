@@ -1,6 +1,6 @@
 from app_account.models import Userfavorite,Address,Profile,Basket,BasketItem,Order,OrderItem
 from rest_framework import serializers
-
+from app_shop.api.serializers import product_color_serializer
 
 class userfavoriteSerializer(serializers.ModelSerializer):
     class Meta:
@@ -48,6 +48,7 @@ class AddressSerializer(serializers.ModelSerializer):
 
 
 class BasketItemSerializer(serializers.ModelSerializer):
+    product_color=product_color_serializer(read_only=True)
     class Meta:
         model=BasketItem
         fields=['id','product_color','quantity']

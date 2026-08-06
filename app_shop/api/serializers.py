@@ -22,14 +22,16 @@ class product_color_serializer(serializers.ModelSerializer):
 
 
 class productSerializer(serializers.ModelSerializer):
-    hi=serializers.SerializerMethodField()
-    def get_hi(self,obj):
-        qs=obj.product_color_set.all()
-        serializer=product_color_serializer(qs,many=True)
-        return serializer.data
+    colors = serializers.SerializerMethodField()
+
+    def get_colors(self, obj):
+        qs = obj.productcolor_set.all()
+        serializer = product_color_serializer(qs, many=True)
+        return serializer.dat
+
     class Meta:
         model = product
-        fields='__all__'
+        fields = '__all__'
 
 
 class ProductRequestBodySerializer(serializers.Serializer):
