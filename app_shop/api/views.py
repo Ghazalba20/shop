@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.db.models import Q
 from app_shop.models import specialoffer,product,product_color,comment
 from app_shop.api.serializers import (
-    specialofferSerializer , ProductSerializer,ProductRequestBodySerializer,
+    specialofferSerializer , productSerializer,ProductRequestBodySerializer,
     ProductCreateSerializer,commentSerializer,CommentRequestBodySerializer
 )
 from rest_framework.response import Response

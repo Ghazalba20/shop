@@ -20,8 +20,8 @@ class product(models.Model):
       
       
 
-class productColor(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+class product_color(models.Model):
+    product = models.ForeignKey(product, on_delete=models.CASCADE)
     name = models.CharField(null=True, max_length=20)
     color_code = models.CharField(null=True, max_length=7)
     price = models.IntegerField(null=True)
